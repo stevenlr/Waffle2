@@ -10,6 +10,7 @@ public class MultiIntBuffer {
 
 	private int _size;
 	private int _used = 0;
+	private int _bufferUsed = 0;
 	private List<IntBuffer> _buffers = new ArrayList<IntBuffer>();
 	private int _nextRead = 0;
 	private boolean _isReading = false;
@@ -23,38 +24,43 @@ public class MultiIntBuffer {
 		_used = 0;
 		_nextRead = 0;
 		_isReading = false;
+		_bufferUsed = 0;
 
 		for (IntBuffer b : _buffers) {
 			b.clear();
 		}
 	}
 
-	public void put(int i) {
+	private void growIfNeeded(int size) {
 		if (_isReading) {
 			throw new RuntimeException("Cannot write in multi-buffer while reading");
 		}
 
-		if ((_used + 1) % _size > _size) {
-			allocateNewBuffer();
-		}
-
-		_buffers.get(_buffers.size() - 1).put(i);
-	}
-
-	public void put(int[] i) {
-		if (_isReading) {
-			throw new RuntimeException("Cannot write in multi-buffer while reading");
-		}
-
-		if (i.length > _size) {
+		if (size > _size) {
 			throw new RuntimeException("Trying to insert array larger that buffer size");
 		}
 
-		if ((_used + i.length) % _size > _size) {
+		if (_used + size > _size * _buffers.size()) {
 			allocateNewBuffer();
 		}
 
-		_buffers.get(_buffers.size() - 1).put(i);
+		if (_used + size > _size * (_bufferUsed + 1)) {
+			_bufferUsed++;
+		}
+	}
+
+	public void put(int f) {
+		growIfNeeded(1);
+
+		_buffers.get(_bufferUsed).put(f);
+		_used++;
+	}
+
+	public void put(int[] f) {
+		growIfNeeded(f.length);
+
+		_buffers.get(_bufferUsed).put(f);
+		_used += f.length;
 	}
 
 	private void allocateNewBuffer() {
@@ -90,21 +96,5 @@ public class MultiIntBuffer {
 
 	public long getByteSize() {
 		return _size * 4;
-	}
-
-	public IntBuffer writeIn(int size) {
-		if (_isReading) {
-			throw new RuntimeException("Cannot write in multi-buffer while reading");
-		}
-
-		if (size > _size) {
-			throw new RuntimeException("Trying to insert array larger that buffer size");
-		}
-
-		if ((_used + size) % _size > _size) {
-			allocateNewBuffer();
-		}
-
-		return _buffers.get(_buffers.size() - 1);
 	}
 }
