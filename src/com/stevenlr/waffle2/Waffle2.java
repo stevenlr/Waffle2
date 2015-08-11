@@ -11,9 +11,9 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL30.*;
 
-public class GameLauncher {
+public class Waffle2 {
 
-	private static GameLauncher _instance = null;
+	private static Waffle2 _instance = null;
 
 	private int _viewportWidth = 1280;
 	private int _viewportHeight = 720;
@@ -24,15 +24,15 @@ public class GameLauncher {
 	private Canvas _canvas;
 	private TextureRegistry _textureRegistry = new TextureRegistry();
 
-	public static GameLauncher getInstance() {
+	public static Waffle2 getInstance() {
 		if (_instance == null) {
-			_instance = new GameLauncher();
+			_instance = new Waffle2();
 		}
 
 		return _instance;
 	}
 
-	private GameLauncher() {
+	private Waffle2() {
 	}
 
 	private void init() {
