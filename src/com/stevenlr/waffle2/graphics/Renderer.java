@@ -9,13 +9,13 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class Renderer {
 
 	private Canvas _canvas;
 	private Matrix3f _transform;
+	private Matrix3f _translation = new Matrix3f();
 	private Deque<Matrix3f> _stack = new LinkedList<Matrix3f>();
 	private Matrix4f _projection;
 
@@ -35,6 +35,7 @@ public class Renderer {
 		_transform.identity();
 		_projection = new Matrix4f();
 		_projection.ortho2D(0, _canvas.getWidth(), 0, _canvas.getHeight());
+		_translation.identity();
 	}
 
 	public void pop() {
@@ -54,11 +55,14 @@ public class Renderer {
 	}
 
 	public void translate(Vector2f offset) {
-		_transform.translation(offset);
+		translate(offset.x, offset.y);
 	}
 
 	public void translate(float dx, float dy) {
-		_transform.translation(dx, dy);
+		_translation.m20 = dx;
+		_translation.m21 = dy;
+
+		_transform.mul(_translation);
 	}
 
 	public void scale(Vector2f scale) {
@@ -74,7 +78,13 @@ public class Renderer {
 	}
 
 	public void rotate(float angle) {
-		_transform.rotate(angle, 0, 0, 1);
+		_transform.rotateZ(angle);
+	}
+
+	public void rotate(float angle, float centerX, float centerY) {
+		translate(centerX, centerY);
+		_transform.rotateZ(angle);
+		translate(-centerX, -centerY);
 	}
 
 	public Matrix3f getTransform() {
@@ -98,5 +108,32 @@ public class Renderer {
 		glBlitFramebuffer(0, 0, canvas.getWidth(), canvas.getHeight(),
 				x, y, x + canvas.getWidth(), y + canvas.getHeight(),
 				GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	}
+
+	public void fillRect(float x, float y, float sx, float sy, float r, float g, float b, float a) {
+		push();
+		translate(x, y);
+		scale(sx, sy);
+		_coloredTechnique.add(_transform, r, g, b, a);
+		pop();
+	}
+
+	public void fillRect(Vector2f position, Vector2f size, float r, float g, float b, float a) {
+		fillRect(position.x, position.y, size.x, size.y, r, g, b, a);
+	}
+
+	public void doRenderPass() {
+		_canvas.bindDraw();
+
+		// Alpha blending
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		_coloredTechnique.doRenderPass(_projection);
+		_coloredTechnique.reset();
+
+		// Additive blending
+		glBlendFunc(GL_ONE, GL_ONE);
+
+		// Multiplicative blending
+		glBlendFunc(GL_DST_COLOR, GL_ZERO);
 	}
 }

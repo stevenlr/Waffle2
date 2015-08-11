@@ -3,8 +3,12 @@ package com.stevenlr.waffle2.graphics.opengl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -13,6 +17,7 @@ import static org.lwjgl.opengl.GL30.*;
 public class Shader {
 
 	private Map<String, Integer> _uniformCache = new HashMap<String, Integer>();
+	private FloatBuffer _mat4fBuffer = BufferUtils.createFloatBuffer(16);
 	private int _program = 0;
 
 	public Shader(String vertFilename, String fragFilename) {
@@ -75,8 +80,18 @@ public class Shader {
 	public void setUniform(String name, int value) {
 		int location = getUniformLocation(name);
 
-		if (location > 0) {
+		if (location >= 0) {
 			glUniform1i(location, value);
+		}
+	}
+
+	public void setUniform(String name, Matrix4f value) {
+		int location = getUniformLocation(name);
+
+		if (location >= 0) {
+			value.get(_mat4fBuffer);
+			glUniformMatrix4fv(location, false, _mat4fBuffer);
+			_mat4fBuffer.clear();
 		}
 	}
 

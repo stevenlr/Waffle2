@@ -28,7 +28,7 @@ public class Quad {
 
 	public void bindVertexAttrib(int index) {
 		GLStates.bindBufferArray(_vbo);
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0L);
+		glVertexAttribPointer(index, 2, GL_FLOAT, false, 0, 0);
 		GLStates.bindBufferArray(0);
 	}
 

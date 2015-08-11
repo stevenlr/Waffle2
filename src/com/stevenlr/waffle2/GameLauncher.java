@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GLContext;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class GameLauncher {
@@ -70,12 +71,19 @@ public class GameLauncher {
 		_canvas = new Canvas(_viewportWidth, _viewportHeight);
 		_textureRegistry.bind();
 
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+
 		while (glfwWindowShouldClose(window) == GL_FALSE) {
+			game.update(0.01f);
+
 			_canvas.bindDraw();
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			game.draw(_canvas.getRenderer());
+			_canvas.getRenderer().doRenderPass();
 
 			GLStates.bindDrawFramebuffer(0);
 			glDrawBuffer(GL_FRONT_LEFT);
