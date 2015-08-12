@@ -13,20 +13,37 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class Renderer {
 
+	public static final int ALPHA = 0;
+	public static final int ADDITIVE = 1;
+	public static final int MULTIPLICATIVE = 2;
+
 	private Canvas _canvas;
 	private Matrix3f _transform;
 	private Matrix3f _translation = new Matrix3f();
 	private Deque<Matrix3f> _stack = new LinkedList<Matrix3f>();
 	private Matrix4f _projection;
 
+	private static int[][] _blendingModes;
 	private static ColoredTechnique _coloredTechnique;
 	private static Quad _quad;
+	private int _blendingMode = ALPHA;
 
 	public static void init() {
 		_quad = new Quad();
 
 		ColoredTechnique.init();
 		_coloredTechnique = new ColoredTechnique(_quad);
+
+		_blendingModes = new int[3][2];
+
+		_blendingModes[0][0] = GL_SRC_ALPHA;
+		_blendingModes[0][1] = GL_ONE_MINUS_SRC_ALPHA;
+
+		_blendingModes[1][0] = GL_ONE;
+		_blendingModes[1][1] = GL_ONE;
+
+		_blendingModes[2][0] = GL_DST_COLOR;
+		_blendingModes[2][1] = GL_ZERO;
 	}
 
 	public Renderer(Canvas canvas) {
@@ -122,18 +139,19 @@ public class Renderer {
 		fillRect(position.x, position.y, size.x, size.y, r, g, b, a);
 	}
 
+	public void setBlending(int mode) {
+		if (mode < 0 || mode > _blendingModes.length) {
+			throw new RuntimeException("Invalid blending mode");
+		}
+
+		doRenderPass();
+		_blendingMode = mode;
+	}
+
 	public void doRenderPass() {
 		_canvas.bindDraw();
-
-		// Alpha blending
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(_blendingModes[_blendingMode][0], _blendingModes[_blendingMode][1]);
 		_coloredTechnique.doRenderPass(_projection);
 		_coloredTechnique.reset();
-
-		// Additive blending
-		glBlendFunc(GL_ONE, GL_ONE);
-
-		// Multiplicative blending
-		glBlendFunc(GL_DST_COLOR, GL_ZERO);
 	}
 }
