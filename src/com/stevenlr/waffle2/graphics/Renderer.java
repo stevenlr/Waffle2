@@ -25,16 +25,19 @@ public class Renderer {
 	private Matrix4f _projection;
 
 	private static int[][] _blendingModes;
-	private static SpriteTechnique _spriteTechnique;
+	private SpriteTechnique _spriteTechnique;
 	private static Quad _quad;
 	private int _blendingMode = ALPHA;
 	private int _whiteTexture = -1;
+
+	private boolean _mirrorX = false;
+	private boolean _mirrorY = false;
+	private boolean _center = false;
 
 	public static void init() {
 		_quad = new Quad();
 
 		SpriteTechnique.init();
-		_spriteTechnique = new SpriteTechnique(_quad);
 
 		_blendingModes = new int[3][2];
 		_blendingModes[ALPHA][0] = GL_SRC_ALPHA;
@@ -52,6 +55,7 @@ public class Renderer {
 		_projection = new Matrix4f();
 		_projection.ortho2D(0, _canvas.getWidth(), 0, _canvas.getHeight());
 		_translation.identity();
+		_spriteTechnique = new SpriteTechnique(_quad);
 	}
 
 	public void pop() {
@@ -117,13 +121,46 @@ public class Renderer {
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
+	public void setDrawParameters(boolean mirrorX, boolean mirrorY, boolean center) {
+		_mirrorX = mirrorX;
+		_mirrorY = mirrorY;
+		_center = center;
+	}
+
+	public void resetDrawParameters() {
+		_mirrorX = false;
+		_mirrorY = false;
+		_center = false;
+	}
+
 	public void blitCanvas(Canvas canvas, int x, int y) {
+		canvas.getRenderer().doRenderPass();
+		_canvas.getRenderer().doRenderPass();
+
 		_canvas.bindDraw();
 		canvas.bindRead();
 
-		glBlitFramebuffer(0, 0, canvas.getWidth(), canvas.getHeight(),
-				x, y, x + canvas.getWidth(), y + canvas.getHeight(),
-				GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		int sx0 = 0, sx1 = canvas.getWidth(), sy0 = 0, sy1 = canvas.getHeight();
+		int dx0 = x, dx1 = x + canvas.getWidth(), dy0 = y, dy1 = y + canvas.getHeight();
+
+		if (_mirrorX) {
+			sx0 = canvas.getWidth();
+			sx1 = 0;
+		}
+
+		if (_mirrorY) {
+			sy0 = canvas.getHeight();
+			sy1 = 0;
+		}
+
+		if (_center) {
+			dx0 -= canvas.getWidth() / 2;
+			dx1 -= canvas.getWidth() / 2;
+			dy0 -= canvas.getHeight() / 2;
+			dy1 -= canvas.getHeight() / 2;
+		}
+
+		glBlitFramebuffer(sx0, sy0, sx1, sy1, dx0, dy0, dx1, dy1, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 
 	public void fillRect(float x, float y, float sx, float sy, float r, float g, float b, float a) {
@@ -134,6 +171,11 @@ public class Renderer {
 		push();
 		translate(x, y);
 		scale(sx, sy);
+
+		if (_center) {
+			translate(-0.5f, -0.5f);
+		}
+
 		_spriteTechnique.add(_transform, r, g, b, a, _whiteTexture);
 		pop();
 	}
@@ -168,6 +210,19 @@ public class Renderer {
 		push();
 		translate(x, y);
 		scale(sx, sy);
+
+		if ((_mirrorX || _mirrorY) && !_center) {
+			translate(0.5f, 0.5f);
+		}
+
+		if (_mirrorX || _mirrorY) {
+			scale((_mirrorX) ? -1 : 1, (_mirrorY) ? -1 : 1);
+		}
+
+		if (_mirrorX || _mirrorY || _center) {
+			translate(-0.5f, -0.5f);
+		}
+
 		_spriteTechnique.add(_transform, r, g, b, a, textureId);
 		pop();
 	}
