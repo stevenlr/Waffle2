@@ -3,7 +3,8 @@ package com.stevenlr.waffle2.graphics;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import com.stevenlr.waffle2.graphics.techniques.ColoredTechnique;
+import com.stevenlr.waffle2.Waffle2;
+import com.stevenlr.waffle2.graphics.techniques.SpriteTechnique;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -24,26 +25,24 @@ public class Renderer {
 	private Matrix4f _projection;
 
 	private static int[][] _blendingModes;
-	private static ColoredTechnique _coloredTechnique;
+	private static SpriteTechnique _spriteTechnique;
 	private static Quad _quad;
 	private int _blendingMode = ALPHA;
+	private int _whiteTexture = -1;
 
 	public static void init() {
 		_quad = new Quad();
 
-		ColoredTechnique.init();
-		_coloredTechnique = new ColoredTechnique(_quad);
+		SpriteTechnique.init();
+		_spriteTechnique = new SpriteTechnique(_quad);
 
 		_blendingModes = new int[3][2];
-
-		_blendingModes[0][0] = GL_SRC_ALPHA;
-		_blendingModes[0][1] = GL_ONE_MINUS_SRC_ALPHA;
-
-		_blendingModes[1][0] = GL_ONE;
-		_blendingModes[1][1] = GL_ONE;
-
-		_blendingModes[2][0] = GL_DST_COLOR;
-		_blendingModes[2][1] = GL_ZERO;
+		_blendingModes[ALPHA][0] = GL_SRC_ALPHA;
+		_blendingModes[ALPHA][1] = GL_ONE_MINUS_SRC_ALPHA;
+		_blendingModes[ADDITIVE][0] = GL_ONE;
+		_blendingModes[ADDITIVE][1] = GL_ONE;
+		_blendingModes[MULTIPLICATIVE][0] = GL_DST_COLOR;
+		_blendingModes[MULTIPLICATIVE][1] = GL_ZERO;
 	}
 
 	public Renderer(Canvas canvas) {
@@ -128,10 +127,14 @@ public class Renderer {
 	}
 
 	public void fillRect(float x, float y, float sx, float sy, float r, float g, float b, float a) {
+		if (_whiteTexture < 0) {
+			_whiteTexture = Waffle2.getInstance().getTextureId("waffle2:white");
+		}
+
 		push();
 		translate(x, y);
 		scale(sx, sy);
-		_coloredTechnique.add(_transform, r, g, b, a);
+		_spriteTechnique.add(_transform, r, g, b, a, _whiteTexture);
 		pop();
 	}
 
@@ -144,14 +147,28 @@ public class Renderer {
 			throw new RuntimeException("Invalid blending mode");
 		}
 
-		doRenderPass();
-		_blendingMode = mode;
+		if (mode != _blendingMode) {
+			doRenderPass();
+			_blendingMode = mode;
+		}
 	}
 
 	public void doRenderPass() {
 		_canvas.bindDraw();
 		glBlendFunc(_blendingModes[_blendingMode][0], _blendingModes[_blendingMode][1]);
-		_coloredTechnique.doRenderPass(_projection);
-		_coloredTechnique.reset();
+		_spriteTechnique.doRenderPass(_projection);
+		_spriteTechnique.reset();
+	}
+
+	public void drawTile(Vector2f pos, Vector2f size, float r, float g, float b, float a, int textureId) {
+		drawTile(pos.x, pos.y, size.x, size.y, r, g, b, a, textureId);
+	}
+
+	public void drawTile(float x, float y, float sx, float sy, float r, float g, float b, float a, int textureId) {
+		push();
+		translate(x, y);
+		scale(sx, sy);
+		_spriteTechnique.add(_transform, r, g, b, a, textureId);
+		pop();
 	}
 }

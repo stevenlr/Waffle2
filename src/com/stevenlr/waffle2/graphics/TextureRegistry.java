@@ -55,10 +55,9 @@ public class TextureRegistry {
 		}
 	}
 
-	public void bind() {
-		_atlas.bind();
-		glActiveTexture(GL_TEXTURE1);
-		GLStates.bindTextureBuffer(_bufferTexture);
+	public void bind(int atlasUnit, int dataUnit) {
+		_atlas.bind(atlasUnit);
+		GLStates.bindTexture(GL_TEXTURE_BUFFER, dataUnit, _bufferTexture);
 	}
 
 	public void buildAtlas() {
@@ -86,26 +85,27 @@ public class TextureRegistry {
 			tileId += nbTiles;
 
 			for (int tile = 0; tile < nbTiles; ++tile) {
-				float tileWidth = texture.tileWidth / atlasWidth;
-				float tileHeight = texture.tileHeight / atlasHeight;
-				float tileX = (region.x + (tile % texture.nbTilesX) * texture.tileWidth) / atlasWidth;
-				float tileY = (region.y + Math.floorDiv(tile, texture.nbTilesY) * texture.tileHeight) / atlasHeight;
+				float tileWidth = (float) texture.tileWidth / atlasWidth;
+				float tileHeight = (float) texture.tileHeight / atlasHeight;
+				float tileX = (float) (region.x + (tile % texture.nbTilesX) * texture.tileWidth) / atlasWidth;
+				float tileY = (float) (region.y + Math.floorDiv(tile, texture.nbTilesY) * texture.tileHeight) / atlasHeight;
 
 				buffer.put(tileX).put(tileY).put(tileWidth).put(tileHeight);
 			}
-
-			buffer.flip();
 		}
 
-		_buffer = glGenBuffers();
-		GLStates.bindBufferTexture(_buffer);
-		_bufferTexture = glGenTextures();
-		GLStates.bindTextureBuffer(_bufferTexture);
+		buffer.flip();
 
-		glBufferData(GL_TEXTURE_BUFFER, _buffer, GL_STATIC_DRAW);
+		_buffer = glGenBuffers();
+		_bufferTexture = glGenTextures();
+
+		GLStates.bindBufferTexture(_buffer);
+		GLStates.bindTexture(GL_TEXTURE_BUFFER, 0, _bufferTexture);
+
+		glBufferData(GL_TEXTURE_BUFFER, buffer, GL_STATIC_DRAW);
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, _buffer);
 
-		GLStates.bindTextureBuffer(0);
+		GLStates.bindTexture(GL_TEXTURE_BUFFER, 0, 0);
 		GLStates.bindBufferTexture(0);
 	}
 
@@ -115,6 +115,10 @@ public class TextureRegistry {
 		}
 
 		Texture texture = _textures.get(identifier);
+
+		if (texture == null) {
+			throw new RuntimeException("Requested texture does not exist");
+		}
 
 		if (tileId < 0 || tileId >= texture.nbTilesX * texture.nbTilesY) {
 			throw new RuntimeException("Invalid tile id");

@@ -1,6 +1,7 @@
 package com.stevenlr.waffle2.graphics.opengl;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -10,12 +11,14 @@ public class GLStates {
 
 	private static int _drawFramebuffer = 0;
 	private static int _readFramebuffer = 0;
-	private static int _texture2d = 0;
 	private static int _vao = 0;
 	private static int _vboArray = 0;
 	private static int _vboTexture = 0;
 	private static int _program = 0;
-	private static int _textureBuffer = 0;
+	private static int _activeTexture = 0;
+
+	private static int[] _textureType = new int[8];
+	private static int[] _texture = new int[8];
 
 	public static void bindFramebuffer(int f) {
 		if (_drawFramebuffer != f || _readFramebuffer != f) {
@@ -39,17 +42,24 @@ public class GLStates {
 		}
 	}
 
-	public static void bindTexture2d(int t) {
-		if (_texture2d != t) {
-			_texture2d = t;
-			glBindTexture(GL_TEXTURE_2D, t);
+	public static void activeTexture(int t) {
+		if (_activeTexture != t) {
+			_activeTexture = t;
+			glActiveTexture(GL_TEXTURE0 + t);
 		}
 	}
 
-	public static void bindTextureBuffer(int t) {
-		if (_textureBuffer != t) {
-			_textureBuffer = t;
-			glBindTexture(GL_TEXTURE_BUFFER, t);
+	public static void bindTexture(int type, int unit, int texture) {
+		if (_textureType[unit] != type && _textureType[unit] != 0) {
+			activeTexture(unit);
+			glBindTexture(_textureType[unit], 0);
+			_textureType[unit] = type;
+		}
+
+		if (_texture[unit] != texture) {
+			activeTexture(unit);
+			_texture[unit] = texture;
+			glBindTexture(type, texture);
 		}
 	}
 

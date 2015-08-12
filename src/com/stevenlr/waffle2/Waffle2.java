@@ -35,6 +35,10 @@ public class Waffle2 {
 	private Waffle2() {
 	}
 
+	private void preInit() {
+		registerTexture("/waffle2/textures/white.png", "waffle2:white");
+	}
+
 	private void init() {
 		Renderer.init();
 	}
@@ -63,13 +67,13 @@ public class Waffle2 {
 		glfwShowWindow(window);
 		GLContext.createFromCurrent();
 
+		preInit();
 		game.preInit();
 		_textureRegistry.buildAtlas();
 		init();
 		game.init();
 
 		_canvas = new Canvas(_viewportWidth, _viewportHeight);
-		_textureRegistry.bind();
 
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -127,5 +131,9 @@ public class Waffle2 {
 
 	public int getTextureId(String identifier, int tileId) {
 		return _textureRegistry.getTexture(identifier, tileId);
+	}
+
+	public void bindTextureRegistry(int atlasUnit, int dataUnit) {
+		_textureRegistry.bind(atlasUnit, dataUnit);
 	}
 }

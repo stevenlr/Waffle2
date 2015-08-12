@@ -19,6 +19,7 @@ import org.lwjgl.BufferUtils;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL31.*;
 
 public class TextureAtlas {
 
@@ -99,21 +100,37 @@ public class TextureAtlas {
 	}
 
 	public void buildAtlas() {
-		_images.sort(new Comparator<BufferedImage>() {
+		List<Integer> indices = new ArrayList<Integer>();
+
+		for (int i = 0; i < _images.size(); ++i) {
+			indices.add(i);
+		}
+
+		indices.sort(new Comparator<Integer>() {
 			@Override
-			public int compare(BufferedImage o1, BufferedImage o2) {
-				return o2.getWidth() * o2.getHeight() - o1.getWidth() * o1.getHeight();
+			public int compare(Integer o1, Integer o2) {
+				BufferedImage i1 = _images.get(o1);
+				BufferedImage i2 = _images.get(o2);
+
+				return i2.getWidth() * i2.getHeight() - i1.getWidth() * i1.getHeight();
 			}
 		});
 
-		for (BufferedImage img : _images) {
+		Node[] nodes = new Node[_images.size()];
+
+		for (Integer index : indices) {
 			Node node;
+			BufferedImage img = _images.get(index);
 
 			if ((node = _root.insert(img.getWidth(), img.getHeight())) == null) {
 				throw new RuntimeException("Couldn't insert new texture in texture atlas");
 			}
 
 			node.occupied = true;
+			nodes[index] = node;
+		}
+
+		for (Node node : nodes) {
 			_regions.add(node);
 		}
 
@@ -148,22 +165,21 @@ public class TextureAtlas {
 		bufferInt.put(data, 0, _width * _height);
 
 		_texture = glGenTextures();
-		GLStates.bindTexture2d(_texture);
+		GLStates.bindTexture(GL_TEXTURE_2D, 0, _texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_BGRA, GL_UNSIGNED_BYTE, buffer);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		GLStates.bindTexture2d(0);
+		GLStates.bindTexture(GL_TEXTURE_2D, 0, 0);
 	}
 
 	public Node getRegion(int i) {
 		return _regions.get(i);
 	}
 
-	public void bind() {
-		glActiveTexture(GL_TEXTURE0);
-		GLStates.bindTexture2d(_texture);
+	public void bind(int unit) {
+		GLStates.bindTexture(GL_TEXTURE_2D, unit, _texture);
 	}
 
 	public int getWidth() {
