@@ -114,6 +114,12 @@ public class TextureRegistry {
 			throw new RuntimeException("Trying to access texture before atlas building");
 		}
 
-		return _textures.get(identifier).tileIdOffset + tileId;
+		Texture texture = _textures.get(identifier);
+
+		if (tileId < 0 || tileId >= texture.nbTilesX * texture.nbTilesY) {
+			throw new RuntimeException("Invalid tile id");
+		}
+
+		return texture.tileIdOffset + tileId;
 	}
 }
