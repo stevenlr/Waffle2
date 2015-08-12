@@ -35,7 +35,7 @@ public class SpriteTechnique {
 	private MultiIntBuffer _intBuffer = new MultiIntBuffer(BUFFER_SIZE * INT_ELEMENT_SIZE);
 
 	public static void init() {
-		_shader = new Shader("/waffle2/shaders/textured-color.vert", "/waffle2/shaders/textured.frag");
+		_shader = new Shader("/waffle2/shaders/sprite.vert", "/waffle2/shaders/sprite.frag");
 		_shader.bindAttribLocation("in_Position", POSITION_LOCATION);
 		_shader.bindAttribLocation("in_Transform", TRANSFORM_LOCATION);
 		_shader.bindAttribLocation("in_Color", COLOR_LOCATION);
