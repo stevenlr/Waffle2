@@ -22,13 +22,13 @@ public class Renderer {
 	private Matrix3f _transform;
 	private Matrix3f _translation = new Matrix3f();
 	private Deque<Matrix3f> _stack = new LinkedList<Matrix3f>();
-	private Matrix4f _projection;
 
 	private static int[][] _blendingModes;
 	private SpriteTechnique _spriteTechnique;
 	private static Quad _quad;
 	private int _blendingMode = ALPHA;
 	private int _whiteTexture = -1;
+	private Camera _camera;
 
 	private boolean _mirrorX = false;
 	private boolean _mirrorY = false;
@@ -52,10 +52,13 @@ public class Renderer {
 		_canvas = canvas;
 		_transform = new Matrix3f();
 		_transform.identity();
-		_projection = new Matrix4f();
-		_projection.ortho2D(0, _canvas.getWidth(), 0, _canvas.getHeight());
 		_translation.identity();
 		_spriteTechnique = new SpriteTechnique(_quad);
+		_camera = new Camera((float) canvas.getWidth() / canvas.getHeight());
+	}
+
+	public Camera getCamera() {
+		return _camera;
 	}
 
 	public void pop() {
@@ -112,7 +115,7 @@ public class Renderer {
 	}
 
 	public Matrix4f getProjection() {
-		return _projection;
+		return _camera.getTransform();
 	}
 
 	public void fill(float r, float g, float b) {
@@ -198,7 +201,7 @@ public class Renderer {
 	public void doRenderPass() {
 		_canvas.bindDraw();
 		glBlendFunc(_blendingModes[_blendingMode][0], _blendingModes[_blendingMode][1]);
-		_spriteTechnique.doRenderPass(_projection);
+		_spriteTechnique.doRenderPass(_camera.getTransform());
 		_spriteTechnique.reset();
 	}
 
