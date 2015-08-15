@@ -209,6 +209,14 @@ public class Renderer {
 		drawTile(pos.x, pos.y, size.x, size.y, r, g, b, a, textureId);
 	}
 
+	public void drawTile(Vector2f pos, Vector2f size, int textureId) {
+		drawTile(pos.x, pos.y, size.x, size.y, 1, 1, 1, 1, textureId);
+	}
+
+	public void drawTile(float x, float y, float sx, float sy, int textureId) {
+		drawTile(x, y, sx, sy, 1, 1, 1, 1, textureId);
+	}
+
 	public void drawTile(float x, float y, float sx, float sy, float r, float g, float b, float a, int textureId) {
 		push();
 		translate(x, y);
