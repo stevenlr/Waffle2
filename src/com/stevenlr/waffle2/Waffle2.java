@@ -79,13 +79,33 @@ public class Waffle2 {
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
 
+		double frameTimeExpected = 1.0 / 60;
+		double previousTime = glfwGetTime();
+		double currentTime, updateTime = 0;
+		int simulationSteps;
+		double totalTime = 0, frameTime;
+		int totalFrames = 0;
+		int totalSteps = 0;
+
 		while (glfwWindowShouldClose(window) == GL_FALSE) {
-			game.update(0.01f);
+			currentTime = glfwGetTime();
+			updateTime += currentTime - previousTime;
+			totalTime += currentTime - previousTime;
+			previousTime = currentTime;
+			simulationSteps = 0;
+
+			while (updateTime >= frameTimeExpected && simulationSteps < 4) {
+				game.update((float) frameTimeExpected);
+				updateTime -= frameTimeExpected;
+				simulationSteps++;
+			}
+
+			totalSteps += simulationSteps;
+			totalFrames++;
 
 			_canvas.bindDraw();
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
-
 			game.draw(_canvas.getRenderer());
 			_canvas.getRenderer().doRenderPass();
 
@@ -100,6 +120,26 @@ public class Waffle2 {
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
+
+			if (totalTime >= 1) {
+				if (_showFps) {
+					System.out.println(totalSteps + " steps, " + totalFrames + " frames");
+				}
+
+				totalFrames = 0;
+				totalSteps = 0;
+				totalTime = 0;
+			}
+
+			frameTime = glfwGetTime() - previousTime;
+
+			if (frameTime < frameTimeExpected) {
+				try {
+					Thread.sleep((long) ((frameTimeExpected - frameTime) * 1000));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		glfwDestroyWindow(window);
