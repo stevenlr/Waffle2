@@ -1,6 +1,7 @@
 package com.stevenlr.waffle2;
 
 import com.stevenlr.waffle2.graphics.Canvas;
+import com.stevenlr.waffle2.graphics.Font;
 import com.stevenlr.waffle2.graphics.opengl.GLStates;
 import com.stevenlr.waffle2.graphics.Renderer;
 import com.stevenlr.waffle2.graphics.TextureRegistry;
@@ -37,6 +38,8 @@ public class Waffle2 {
 
 	private void preInit() {
 		registerTexture("/waffle2/textures/white.png", "waffle2:white");
+
+		Font font = new Font("/pixelmix.ttf", 16);
 	}
 
 	private void init() {
@@ -98,6 +101,10 @@ public class Waffle2 {
 				game.update((float) frameTimeExpected);
 				updateTime -= frameTimeExpected;
 				simulationSteps++;
+			}
+
+			while (updateTime >= frameTimeExpected) {
+				updateTime -= frameTimeExpected;
 			}
 
 			totalSteps += simulationSteps;
