@@ -7,6 +7,7 @@ import com.stevenlr.waffle2.graphics.FontRegistry;
 import com.stevenlr.waffle2.graphics.opengl.GLStates;
 import com.stevenlr.waffle2.graphics.Renderer;
 import com.stevenlr.waffle2.graphics.TextureRegistry;
+import com.stevenlr.waffle2.input.KeyboardHandler;
 import com.stevenlr.waffle2.input.MouseHandler;
 import org.lwjgl.opengl.GLContext;
 
@@ -30,6 +31,7 @@ public class Waffle2 {
 	private TextureRegistry _textureRegistry = new TextureRegistry();
 	private FontRegistry _fontRegistry = new FontRegistry();
 	private MouseHandler _mouseHandler;
+	private KeyboardHandler _keyboardHandler;
 
 	public static Waffle2 getInstance() {
 		if (_instance == null) {
@@ -44,6 +46,7 @@ public class Waffle2 {
 
 	private void preInit() {
 		_mouseHandler = new MouseHandler();
+		_keyboardHandler = new KeyboardHandler();
 
 		_textureRegistry.registerTexture("/waffle2/textures/white.png", "waffle2:white");
 	}
@@ -78,6 +81,7 @@ public class Waffle2 {
 
 		preInit();
 		_mouseHandler.setCallbacks(window);
+		_keyboardHandler.setCallbacks(window);
 		game.preInit();
 
 		_textureRegistry.buildAtlas();
@@ -94,31 +98,22 @@ public class Waffle2 {
 
 		double frameTimeExpected = 1.0 / 60;
 		double previousTime = glfwGetTime();
-		double currentTime, updateTime = 0;
-		int simulationSteps;
+		double currentTime, updateTime ;
 		double totalTime = 0, frameTime;
 		int totalFrames = 0;
-		int totalSteps = 0;
 
 		while (glfwWindowShouldClose(window) == GL_FALSE) {
 			currentTime = glfwGetTime();
-			updateTime += currentTime - previousTime;
+			updateTime = currentTime - previousTime;
 			totalTime += currentTime - previousTime;
 			previousTime = currentTime;
-			simulationSteps = 0;
 
-			while (updateTime >= frameTimeExpected && simulationSteps < 4) {
-				game.update((float) frameTimeExpected);
-				updateTime -= frameTimeExpected;
-				simulationSteps++;
-				_mouseHandler.update();
-			}
+			updateTime = Math.min(updateTime, 4 * frameTimeExpected);
 
-			while (updateTime >= frameTimeExpected) {
-				updateTime -= frameTimeExpected;
-			}
+			game.update((float) updateTime);
+			_mouseHandler.update();
+			_keyboardHandler.update();
 
-			totalSteps += simulationSteps;
 			totalFrames++;
 
 			_canvas.bindDraw();
@@ -141,11 +136,10 @@ public class Waffle2 {
 
 			if (totalTime >= 1) {
 				if (_showFps) {
-					System.out.println(totalSteps + " steps, " + totalFrames + " frames");
+					System.out.println(totalFrames + " fps");
 				}
 
 				totalFrames = 0;
-				totalSteps = 0;
 				totalTime = 0;
 			}
 
@@ -197,5 +191,9 @@ public class Waffle2 {
 
 	public MouseHandler getMouseHandler() {
 		return _mouseHandler;
+	}
+
+	public KeyboardHandler getKeyboardHandler() {
+		return _keyboardHandler;
 	}
 }
