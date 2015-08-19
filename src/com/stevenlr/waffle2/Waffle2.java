@@ -2,6 +2,8 @@ package com.stevenlr.waffle2;
 
 import java.awt.image.BufferedImage;
 
+import com.stevenlr.waffle2.audio.AudioRegistry;
+import com.stevenlr.waffle2.audio.Sound;
 import com.stevenlr.waffle2.graphics.Canvas;
 import com.stevenlr.waffle2.graphics.FontRegistry;
 import com.stevenlr.waffle2.graphics.opengl.GLStates;
@@ -9,6 +11,8 @@ import com.stevenlr.waffle2.graphics.Renderer;
 import com.stevenlr.waffle2.graphics.TextureRegistry;
 import com.stevenlr.waffle2.input.KeyboardHandler;
 import com.stevenlr.waffle2.input.MouseHandler;
+import org.lwjgl.openal.AL;
+import org.lwjgl.openal.ALContext;
 import org.lwjgl.opengl.GLContext;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -26,10 +30,9 @@ public class Waffle2 {
 	private String _title = "Waffle 2 Game";
 	private boolean _showFps = false;
 
-	private Canvas _canvas;
-
 	private TextureRegistry _textureRegistry = new TextureRegistry();
 	private FontRegistry _fontRegistry = new FontRegistry();
+	private AudioRegistry _audioRegistry = new AudioRegistry();
 	private MouseHandler _mouseHandler;
 	private KeyboardHandler _keyboardHandler;
 
@@ -47,6 +50,7 @@ public class Waffle2 {
 	private void preInit() {
 		_mouseHandler = new MouseHandler();
 		_keyboardHandler = new KeyboardHandler();
+		_audioRegistry = new AudioRegistry();
 
 		_textureRegistry.registerTexture("/waffle2/textures/white.png", "waffle2:white");
 	}
@@ -79,6 +83,10 @@ public class Waffle2 {
 		glfwShowWindow(window);
 		GLContext.createFromCurrent();
 
+		ALContext alContext = ALContext.create();
+
+		alContext.makeCurrent();
+
 		preInit();
 		_mouseHandler.setCallbacks(window);
 		_keyboardHandler.setCallbacks(window);
@@ -90,7 +98,7 @@ public class Waffle2 {
 		init();
 		game.init();
 
-		_canvas = new Canvas(_viewportWidth, _viewportHeight);
+		Canvas canvas = new Canvas(_viewportWidth, _viewportHeight);
 
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -116,15 +124,15 @@ public class Waffle2 {
 
 			totalFrames++;
 
-			_canvas.bindDraw();
+			canvas.bindDraw();
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
-			game.draw(_canvas.getRenderer());
-			_canvas.getRenderer().doRenderPass();
+			game.draw(canvas.getRenderer());
+			canvas.getRenderer().doRenderPass();
 
 			GLStates.bindDrawFramebuffer(0);
 			glDrawBuffer(GL_FRONT_LEFT);
-			_canvas.bindRead();
+			canvas.bindRead();
 
 			glViewport(0, 0, _viewportWidth * _resolution, _viewportHeight * _resolution);
 			glBlitFramebuffer(0, 0, _viewportWidth, _viewportHeight,
@@ -154,6 +162,7 @@ public class Waffle2 {
 			}
 		}
 
+		AL.destroy(alContext);
 		glfwDestroyWindow(window);
 	}
 
@@ -187,6 +196,10 @@ public class Waffle2 {
 
 	public FontRegistry getFontRegistry() {
 		return _fontRegistry;
+	}
+
+	public AudioRegistry getAudioRegistry() {
+		return _audioRegistry;
 	}
 
 	public MouseHandler getMouseHandler() {
