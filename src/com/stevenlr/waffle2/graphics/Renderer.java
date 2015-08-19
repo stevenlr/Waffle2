@@ -168,7 +168,7 @@ public class Renderer {
 
 	public void fillRect(float x, float y, float sx, float sy, float r, float g, float b, float a) {
 		if (_whiteTexture < 0) {
-			_whiteTexture = Waffle2.getInstance().getTextureId("waffle2:white");
+			_whiteTexture = Waffle2.getInstance().getTextureRegistry().getTexture("waffle2:white");
 		}
 
 		push();
@@ -203,6 +203,14 @@ public class Renderer {
 		glBlendFunc(_blendingModes[_blendingMode][0], _blendingModes[_blendingMode][1]);
 		_spriteTechnique.doRenderPass(_camera.getTransform());
 		_spriteTechnique.reset();
+	}
+
+	public void drawText(String identifier, String text, Vector2f pos, float size, float r, float g, float b, float a, Font.Alignment align) {
+		drawText(identifier, text, pos.x, pos.y, size, r, g, b, a, align);
+	}
+
+	public void drawText(String identifier, String text, float x, float y, float size, float r, float g, float b, float a, Font.Alignment align) {
+		Waffle2.getInstance().getFontRegistry().getFont(identifier).drawText(this, text, x, y, size, r, g, b, a, align);
 	}
 
 	public void drawTile(Vector2f pos, Vector2f size, float r, float g, float b, float a, int textureId) {

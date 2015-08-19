@@ -97,7 +97,7 @@ public class SpriteTechnique {
 	}
 
 	public void doRenderPass(Matrix4f projection) {
-		Waffle2.getInstance().bindTextureRegistry(0, 1);
+		Waffle2.getInstance().getTextureRegistry().bind(0, 1);
 
 		_shader.bind();
 		_shader.setUniform("u_ProjectionMatrix", projection);

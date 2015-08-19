@@ -29,27 +29,44 @@ public class TextureRegistry {
 	private int _buffer;
 	private int _bufferTexture;
 
+	public void registerTexture(BufferedImage img, String identifier) {
+		registerTexture(img, identifier, 0, 0);
+	}
+
+	public void registerTexture(BufferedImage img, String identifier, int tileWidth, int tileHeight) {
+		if (_atlasBuilt) {
+			throw new RuntimeException("Cannot register textures after pre-init");
+		}
+
+		_atlas.registerTexture(img);
+		_identifiers.add(identifier);
+
+		Texture texture = new Texture();
+
+		texture.width = img.getWidth();
+		texture.height = img.getHeight();
+
+		if (tileWidth < 1 || tileHeight < 1) {
+			tileWidth = texture.width;
+			tileHeight = texture.height;
+		}
+
+		texture.tileWidth = tileWidth;
+		texture.tileHeight = tileHeight;
+		texture.nbTilesX = Math.floorDiv(texture.width, texture.tileWidth);
+		texture.nbTilesY = Math.floorDiv(texture.height, texture.tileHeight);
+		_textures.put(identifier, texture);
+	}
+
+	public void registerTexture(String filename, String identifier) {
+		registerTexture(filename, identifier, 0, 0);
+	}
+
 	public void registerTexture(String filename, String identifier, int tileWidth, int tileHeight) {
 		try {
 			BufferedImage img = ImageIO.read(TextureRegistry.class.getResourceAsStream(filename));
-			_atlas.registerTexture(img);
-			_identifiers.add(identifier);
 
-			Texture texture = new Texture();
-
-			texture.width = img.getWidth();
-			texture.height = img.getHeight();
-
-			if (tileWidth < 1 || tileHeight < 1) {
-				tileWidth = texture.width;
-				tileHeight = texture.height;
-			}
-
-			texture.tileWidth = tileWidth;
-			texture.tileHeight = tileHeight;
-			texture.nbTilesX = Math.floorDiv(texture.width, texture.tileWidth);
-			texture.nbTilesY = Math.floorDiv(texture.height, texture.tileHeight);
-			_textures.put(identifier, texture);
+			registerTexture(img, identifier, tileWidth, tileHeight);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -88,7 +105,7 @@ public class TextureRegistry {
 				float tileWidth = (float) texture.tileWidth / atlasWidth;
 				float tileHeight = (float) texture.tileHeight / atlasHeight;
 				float tileX = (float) (region.x + (tile % texture.nbTilesX) * texture.tileWidth) / atlasWidth;
-				float tileY = (float) (region.y + Math.floorDiv(tile, texture.nbTilesY) * texture.tileHeight) / atlasHeight;
+				float tileY = (float) (region.y + Math.floorDiv(tile, texture.nbTilesX) * texture.tileHeight) / atlasHeight;
 
 				buffer.put(tileX).put(tileY).put(tileWidth).put(tileHeight);
 			}
@@ -107,6 +124,10 @@ public class TextureRegistry {
 
 		GLStates.bindTexture(GL_TEXTURE_BUFFER, 0, 0);
 		GLStates.bindBufferTexture(0);
+	}
+
+	public int getTexture(String identifier) {
+		return getTexture(identifier, 0);
 	}
 
 	public int getTexture(String identifier, int tileId) {

@@ -49,7 +49,7 @@ public class Animation {
 	public void addFrame(int tileId, float duration) {
 		Frame frame = new Frame();
 
-		frame.textureId = Waffle2.getInstance().getTextureId(_tilesetIdentifier, tileId);
+		frame.textureId = Waffle2.getInstance().getTextureRegistry().getTexture(_tilesetIdentifier, tileId);
 		frame.duration = duration;
 
 		_frames.add(frame);

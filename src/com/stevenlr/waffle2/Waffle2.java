@@ -1,7 +1,9 @@
 package com.stevenlr.waffle2;
 
+import java.awt.image.BufferedImage;
+
 import com.stevenlr.waffle2.graphics.Canvas;
-import com.stevenlr.waffle2.graphics.Font;
+import com.stevenlr.waffle2.graphics.FontRegistry;
 import com.stevenlr.waffle2.graphics.opengl.GLStates;
 import com.stevenlr.waffle2.graphics.Renderer;
 import com.stevenlr.waffle2.graphics.TextureRegistry;
@@ -24,6 +26,7 @@ public class Waffle2 {
 
 	private Canvas _canvas;
 	private TextureRegistry _textureRegistry = new TextureRegistry();
+	private FontRegistry _fontRegistry = new FontRegistry();
 
 	public static Waffle2 getInstance() {
 		if (_instance == null) {
@@ -37,9 +40,7 @@ public class Waffle2 {
 	}
 
 	private void preInit() {
-		registerTexture("/waffle2/textures/white.png", "waffle2:white");
-
-		Font font = new Font("/pixelmix.ttf", 16);
+		_textureRegistry.registerTexture("/waffle2/textures/white.png", "waffle2:white");
 	}
 
 	private void init() {
@@ -73,6 +74,7 @@ public class Waffle2 {
 		preInit();
 		game.preInit();
 		_textureRegistry.buildAtlas();
+		_fontRegistry.buildFonts();
 		init();
 		game.init();
 
@@ -164,23 +166,11 @@ public class Waffle2 {
 		}
 	}
 
-	public void registerTexture(String filename, String identifier, int tileWidth, int tileHeight) {
-		_textureRegistry.registerTexture(filename, identifier, tileWidth, tileHeight);
+	public TextureRegistry getTextureRegistry() {
+		return _textureRegistry;
 	}
 
-	public void registerTexture(String filename, String identifier) {
-		_textureRegistry.registerTexture(filename, identifier, 0, 0);
-	}
-
-	public int getTextureId(String identifier) {
-		return _textureRegistry.getTexture(identifier, 0);
-	}
-
-	public int getTextureId(String identifier, int tileId) {
-		return _textureRegistry.getTexture(identifier, tileId);
-	}
-
-	public void bindTextureRegistry(int atlasUnit, int dataUnit) {
-		_textureRegistry.bind(atlasUnit, dataUnit);
+	public FontRegistry getFontRegistry() {
+		return _fontRegistry;
 	}
 }
