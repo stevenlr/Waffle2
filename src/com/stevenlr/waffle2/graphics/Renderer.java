@@ -8,6 +8,8 @@ import com.stevenlr.waffle2.graphics.techniques.SpriteTechnique;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -246,5 +248,19 @@ public class Renderer {
 
 		_spriteTechnique.add(_transform, r, g, b, a, textureId);
 		pop();
+	}
+
+	public Vector2f toWorldCoords(Vector2f screenCoords) {
+		Matrix4f p = new Matrix4f(_camera.getTransform());
+
+		p.invert();
+
+		Vector4f v4 = new Vector4f((screenCoords.x / Waffle2.getInstance().getViewportWidth()) * 2 - 1,
+				(screenCoords.y / Waffle2.getInstance().getViewportHeight()) * 2 - 1,
+				0, 1);
+
+		v4.mul(p);
+
+		return new Vector2f(v4.x / v4.w, v4.y / v4.w);
 	}
 }

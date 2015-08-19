@@ -7,6 +7,7 @@ import com.stevenlr.waffle2.graphics.FontRegistry;
 import com.stevenlr.waffle2.graphics.opengl.GLStates;
 import com.stevenlr.waffle2.graphics.Renderer;
 import com.stevenlr.waffle2.graphics.TextureRegistry;
+import com.stevenlr.waffle2.input.MouseHandler;
 import org.lwjgl.opengl.GLContext;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -25,8 +26,10 @@ public class Waffle2 {
 	private boolean _showFps = false;
 
 	private Canvas _canvas;
+
 	private TextureRegistry _textureRegistry = new TextureRegistry();
 	private FontRegistry _fontRegistry = new FontRegistry();
+	private MouseHandler _mouseHandler;
 
 	public static Waffle2 getInstance() {
 		if (_instance == null) {
@@ -40,6 +43,8 @@ public class Waffle2 {
 	}
 
 	private void preInit() {
+		_mouseHandler = new MouseHandler();
+
 		_textureRegistry.registerTexture("/waffle2/textures/white.png", "waffle2:white");
 	}
 
@@ -72,9 +77,12 @@ public class Waffle2 {
 		GLContext.createFromCurrent();
 
 		preInit();
+		_mouseHandler.setCallbacks(window);
 		game.preInit();
+
 		_textureRegistry.buildAtlas();
 		_fontRegistry.buildFonts();
+
 		init();
 		game.init();
 
@@ -103,6 +111,7 @@ public class Waffle2 {
 				game.update((float) frameTimeExpected);
 				updateTime -= frameTimeExpected;
 				simulationSteps++;
+				_mouseHandler.update();
 			}
 
 			while (updateTime >= frameTimeExpected) {
@@ -166,11 +175,27 @@ public class Waffle2 {
 		}
 	}
 
+	public int getViewportWidth() {
+		return _viewportWidth;
+	}
+
+	public int getViewportHeight() {
+		return _viewportHeight;
+	}
+
+	public int getResolution() {
+		return _resolution;
+	}
+
 	public TextureRegistry getTextureRegistry() {
 		return _textureRegistry;
 	}
 
 	public FontRegistry getFontRegistry() {
 		return _fontRegistry;
+	}
+
+	public MouseHandler getMouseHandler() {
+		return _mouseHandler;
 	}
 }
