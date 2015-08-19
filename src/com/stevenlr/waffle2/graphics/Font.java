@@ -66,7 +66,7 @@ public class Font {
 			_maxHeight = tileHeight;
 			_ascent = maxAscent;
 
-					image = new BufferedImage(tileWidth * 12, tileHeight * 8, BufferedImage.TYPE_INT_ARGB);
+			image = new BufferedImage(tileWidth * 12, tileHeight * 8, BufferedImage.TYPE_INT_ARGB);
 			g = (Graphics2D) image.getGraphics();
 
 			g.setFont(_font);

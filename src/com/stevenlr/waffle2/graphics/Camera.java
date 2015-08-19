@@ -1,5 +1,8 @@
 package com.stevenlr.waffle2.graphics;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
@@ -9,14 +12,40 @@ public class Camera {
 	private float _aspectRatioModifier = 1;
 	private float _radius = 10;
 	private float _rotation = 0;
-	private Matrix4f _transform;
+	private Matrix4f _transform = new Matrix4f();
 	private boolean _isDirty = true;
-	private Vector2f _center;
+	private Vector2f _center = new Vector2f(0, 0);
+
+	private Deque<Camera> _stack = new LinkedList<Camera>();
 
 	public Camera(float aspectRatio) {
 		_aspectRatio = aspectRatio;
-		_transform = new Matrix4f();
-		_center = new Vector2f(0, 0);
+	}
+
+	public Camera(Camera c) {
+		copyFrom(c);
+	}
+
+	public void copyFrom(Camera c) {
+		_aspectRatio = c._aspectRatio;
+		_aspectRatioModifier = c._aspectRatioModifier;
+		_radius = c._radius;
+		_rotation = c._rotation;
+		_transform.set(c._transform);
+		_isDirty = true;
+		_center.set(c._center);
+	}
+
+	void push() {
+		_stack.push(new Camera(this));
+	}
+
+	void pop() {
+		if (_stack.isEmpty()) {
+			throw new RuntimeException("Popping empty transform stack");
+		}
+
+		copyFrom(_stack.pop());
 	}
 
 	public float getAspectRatioModifier() {

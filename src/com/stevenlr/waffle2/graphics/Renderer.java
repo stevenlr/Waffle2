@@ -67,10 +67,12 @@ public class Renderer {
 		}
 
 		_transform = _stack.pop();
+		_camera.pop();
 	}
 
 	public void push() {
 		_stack.push(new Matrix3f(_transform));
+		_camera.push();
 	}
 
 	public void identity() {
