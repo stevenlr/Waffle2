@@ -18,7 +18,7 @@ public class Animation {
 		private float _frameTime = 0;
 		private int _frameId = 0;
 
-		public void update(float dt) {
+		public void update(double dt) {
 			Frame frame;
 			int nbFrames = getNbFrames();
 
