@@ -104,7 +104,7 @@ public class TextureRegistry {
 				float tileWidth = (float) texture.tileWidth / atlasWidth;
 				float tileHeight = (float) texture.tileHeight / atlasHeight;
 				float tileX = (float) (region.x + (tile % texture.nbTilesX) * texture.tileWidth) / atlasWidth;
-				float tileY = (float) (region.y + Math.floorDiv(tile, texture.nbTilesX) * texture.tileHeight) / atlasHeight;
+				float tileY = (float) (region.y + (int) Math.floor((float) tile / texture.nbTilesX) * texture.tileHeight) / atlasHeight;
 
 				buffer.put(tileX).put(tileY).put(tileWidth).put(tileHeight);
 			}
