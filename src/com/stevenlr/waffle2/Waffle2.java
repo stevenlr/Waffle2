@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 
 import com.stevenlr.waffle2.audio.AudioRegistry;
 import com.stevenlr.waffle2.audio.Sound;
+import com.stevenlr.waffle2.entitysystem.EntitySystem;
 import com.stevenlr.waffle2.graphics.Canvas;
 import com.stevenlr.waffle2.graphics.FontRegistry;
 import com.stevenlr.waffle2.graphics.opengl.GLStates;
@@ -35,6 +36,7 @@ public class Waffle2 {
 	private AudioRegistry _audioRegistry = new AudioRegistry();
 	private MouseHandler _mouseHandler;
 	private KeyboardHandler _keyboardHandler;
+	private EntitySystem _entitySystem = new EntitySystem();
 
 	public static Waffle2 getInstance() {
 		if (_instance == null) {
@@ -208,5 +210,9 @@ public class Waffle2 {
 
 	public KeyboardHandler getKeyboardHandler() {
 		return _keyboardHandler;
+	}
+
+	public EntitySystem getEntitySystem() {
+		return _entitySystem;
 	}
 }
