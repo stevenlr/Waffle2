@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 import com.stevenlr.waffle2.Waffle2;
+import com.stevenlr.waffle2.graphics.techniques.CanvasTechnique;
 import com.stevenlr.waffle2.graphics.techniques.SpriteTechnique;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -27,6 +28,7 @@ public class Renderer {
 
 	private static int[][] _blendingModes;
 	private SpriteTechnique _spriteTechnique;
+	private CanvasTechnique _canvasTechnique;
 	private static Quad _quad;
 	private int _blendingMode = ALPHA;
 	private int _whiteTexture = -1;
@@ -40,6 +42,7 @@ public class Renderer {
 		_quad = new Quad();
 
 		SpriteTechnique.init();
+		CanvasTechnique.init();
 
 		_blendingModes = new int[3][2];
 		_blendingModes[ALPHA][0] = GL_SRC_ALPHA;
@@ -56,6 +59,7 @@ public class Renderer {
 		_transform.identity();
 		_translation.identity();
 		_spriteTechnique = new SpriteTechnique(_quad);
+		_canvasTechnique = new CanvasTechnique(_quad);
 		_camera = new Camera((float) canvas.getWidth() / canvas.getHeight());
 	}
 
@@ -141,14 +145,17 @@ public class Renderer {
 	}
 
 	public void blitCanvas(Canvas canvas, int x, int y) {
+		blitCanvas(canvas, x, y, 1, 1, 1, 1);
+	}
+
+	public void blitCanvas(Canvas canvas, int x, int y, float r, float g, float b, float a) {
 		canvas.getRenderer().doRenderPass();
 		_canvas.getRenderer().doRenderPass();
 
 		_canvas.bindDraw();
-		canvas.bindRead();
 
-		int sx0 = 0, sx1 = canvas.getWidth(), sy0 = 0, sy1 = canvas.getHeight();
-		int dx0 = x, dx1 = x + canvas.getWidth(), dy0 = y, dy1 = y + canvas.getHeight();
+		float sx0 = 0, sx1 = canvas.getWidth(), sy0 = 0, sy1 = canvas.getHeight();
+		float dx0 = x, dx1 = x + canvas.getWidth(), dy0 = y, dy1 = y + canvas.getHeight();
 
 		if (_mirrorX) {
 			sx0 = canvas.getWidth();
@@ -167,7 +174,17 @@ public class Renderer {
 			dy1 -= canvas.getHeight() / 2;
 		}
 
-		glBlitFramebuffer(sx0, sy0, sx1, sy1, dx0, dy0, dx1, dy1, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		sx0 /= canvas.getWidth();
+		sx1 /= canvas.getWidth();
+		sy0 /= canvas.getHeight();
+		sy1 /= canvas.getHeight();
+
+		dx0 /= _canvas.getWidth();
+		dx1 /= _canvas.getWidth();
+		dy0 /= _canvas.getHeight();
+		dy1 /= _canvas.getHeight();
+
+		_canvasTechnique.blit(canvas.getTexture(), sx0, sy0, sx1, sy1, dx0, dy0, dx1, dy1, r, g, b, a);
 	}
 
 	public void fillRect(float x, float y, float sx, float sy, float r, float g, float b, float a) {

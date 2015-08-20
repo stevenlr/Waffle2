@@ -65,7 +65,7 @@ public class Shader {
 	}
 
 	public int getUniformLocation(String name) {
-		int location = -1;
+		int location;
 
 		if (_uniformCache.containsKey(name)) {
 			location = _uniformCache.get(name);
@@ -82,6 +82,22 @@ public class Shader {
 
 		if (location >= 0) {
 			glUniform1i(location, value);
+		}
+	}
+
+	public void setUniform(String name, float x, float y) {
+		int location = getUniformLocation(name);
+
+		if (location >= 0) {
+			glUniform2f(location, x, y);
+		}
+	}
+
+	public void setUniform(String name, float x, float y, float z, float w) {
+		int location = getUniformLocation(name);
+
+		if (location >= 0) {
+			glUniform4f(location, x, y, z, w);
 		}
 	}
 
