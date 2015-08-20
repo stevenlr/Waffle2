@@ -1,10 +1,8 @@
 package com.stevenlr.waffle2;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 
 import com.stevenlr.waffle2.audio.AudioRegistry;
-import com.stevenlr.waffle2.audio.Sound;
 import com.stevenlr.waffle2.entitysystem.EntitySystem;
 import com.stevenlr.waffle2.graphics.Canvas;
 import com.stevenlr.waffle2.graphics.FontRegistry;

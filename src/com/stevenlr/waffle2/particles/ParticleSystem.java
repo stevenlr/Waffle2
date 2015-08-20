@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2015 Steven Le Rouzic
- * See LICENSE.txt for license details
- */
-
 package com.stevenlr.waffle2.particles;
 
 import java.util.Iterator;

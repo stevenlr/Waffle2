@@ -14,7 +14,6 @@ import com.stevenlr.waffle2.graphics.opengl.GLStates;
 import org.lwjgl.BufferUtils;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL31.*;
@@ -53,8 +52,8 @@ public class TextureRegistry {
 
 		texture.tileWidth = tileWidth;
 		texture.tileHeight = tileHeight;
-		texture.nbTilesX = Math.floorDiv(texture.width, texture.tileWidth);
-		texture.nbTilesY = Math.floorDiv(texture.height, texture.tileHeight);
+		texture.nbTilesX = (int) Math.floor((float) texture.width / texture.tileWidth);
+		texture.nbTilesY = (int) Math.floor((float) texture.height / texture.tileHeight);
 		_textures.put(identifier, texture);
 	}
 

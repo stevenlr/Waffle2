@@ -5,10 +5,8 @@ import com.stevenlr.waffle2.graphics.opengl.GLStates;
 import com.stevenlr.waffle2.graphics.opengl.Shader;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL33.*;
 
 public class CanvasTechnique {
 

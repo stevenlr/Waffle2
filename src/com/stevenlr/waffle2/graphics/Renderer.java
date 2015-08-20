@@ -9,11 +9,9 @@ import com.stevenlr.waffle2.graphics.techniques.SpriteTechnique;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL30.*;
 
 public class Renderer {
 
