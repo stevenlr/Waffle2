@@ -152,12 +152,6 @@ public class TextureAtlas {
 		g.dispose();
 		_images.clear();
 
-		try {
-			ImageIO.write(atlas, "PNG", new File("atlas.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
 		int[] data = ((DataBufferInt) atlas.getRaster().getDataBuffer()).getData();
 		ByteBuffer buffer = BufferUtils.createByteBuffer(_width * _height * 4);
 		IntBuffer bufferInt = buffer.asIntBuffer();

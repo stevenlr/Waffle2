@@ -1,6 +1,7 @@
 package com.stevenlr.waffle2;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 import com.stevenlr.waffle2.audio.AudioRegistry;
 import com.stevenlr.waffle2.audio.Sound;
@@ -47,6 +48,7 @@ public class Waffle2 {
 	}
 
 	private Waffle2() {
+		System.setProperty("org.lwjgl.librarypath", new File("native").getAbsolutePath());
 	}
 
 	private void preInit() {

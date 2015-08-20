@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Waffle2" default="dist" basedir=".">
+	<property name="src" value="src" />
+	<property name="res" value="res" />
+	<property name="build" value="build" />
+	<property name="dist" value="dist" />
+	<property name="jarfile" value="Waffle2.jar" />
+	<property name="libdir" value="libs" />
+
+	<target name="build">
+		<ant target="clean" />
+		<mkdir dir="${build}" />
+		<javac srcdir="${src}" destdir="${build}" includes="com/stevenlr/waffle2/**" target="1.7" source="1.7">
+			<classpath>
+				<pathelement path="${libdir}/joml-1.4.0.jar" />
+				<pathelement path="${libdir}/lwjgl.jar" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="dist" depends="build">
+		<mkdir dir="${dist}" />
+		<jar jarfile="${dist}/${jarfile}">
+			<fileset dir="${build}" />
+			<fileset dir="${res}" excludes="**/Thumbs.db" />
+			<zipgroupfileset dir="${libdir}" includes="joml-1.4.0.jar" />
+			<zipgroupfileset dir="${libdir}" includes="lwjgl.jar" />
+			<manifest>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean">
+		<delete dir="${build}" />
+	</target>
+</project>
