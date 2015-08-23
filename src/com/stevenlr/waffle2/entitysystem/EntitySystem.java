@@ -45,6 +45,14 @@ public class EntitySystem {
 		return _entities.get(id);
 	}
 
+	public void removeAllEntities() {
+		_entities.clear();
+
+		for (Map.Entry<Class, HashMap<Entity, Component>> e : _components.entrySet()) {
+			e.getValue().clear();
+		}
+	}
+
 	public void removeEntity(Entity e) {
 		e.removeAllComponents();
 		_entities.remove(e.id);
