@@ -22,6 +22,7 @@ void main()
     vec4 textureData = texelFetch(u_TexturesData, in_TextureId);
 
     v_TextureCoords = in_Position * vec2(1, -1) + vec2(0, 1);
+    v_TextureCoords = v_TextureCoords * 0.98 + 0.01;
     v_TextureCoords = v_TextureCoords * textureData.zw + textureData.xy;
 
     v_Color = in_Color;
